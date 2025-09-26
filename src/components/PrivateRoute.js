@@ -1,0 +1,27 @@
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "../context/AuthContext";
+
+const PrivateRoute = ({ children }) => {
+  const { isAuthenticated, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    // If loading is finished and user is not authenticated, redirect
+    if (!loading && !isAuthenticated) {
+      router.push("/login");
+    }
+  }, [isAuthenticated, loading, router]);
+
+  // While loading, you can show a loader or nothing
+  if (loading || !isAuthenticated) {
+    return <div>Loading...</div>; // Or a spinner component
+  }
+
+  // If authenticated, render the children components
+  return children;
+};
+
+export default PrivateRoute;
