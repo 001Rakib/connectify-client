@@ -1,22 +1,37 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
+import API from "@/utils/api";
 
 export default function Login() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+  const [error, setError] = useState("");
+  const router = useRouter();
+  const { login } = useAuth();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // We'll add the API call here in the next step
-    console.log(formData);
+    setError("");
+    try {
+      const response = await API.post("/auth/login", formData);
+      login(response.data);
+      router.push("/");
+    } catch (error) {
+      console.error("Login error:", err.response.data);
+      setError(
+        err.response.data || "Login failed. Please check your credentials."
+      );
+    }
   };
 
   return (
@@ -25,6 +40,7 @@ export default function Login() {
         <h1 className="text-2xl font-bold text-center">
           Log in to your Account
         </h1>
+        {error && <p className="text-red-500 text-sm text-center">{error}</p>}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-700">
