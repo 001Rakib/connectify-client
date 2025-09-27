@@ -7,9 +7,11 @@ import { useEffect, useState } from "react";
 
 export default function Post({ post }) {
   const { user } = useAuth();
-  // State to manage likes
   const [likeCount, setLikeCount] = useState(post.likes.length);
   const [isLiked, setIsLiked] = useState(false);
+  const [comments, setComments] = useState([]);
+  const [newComment, setNewComment] = useState("");
+  const [showComments, setShowComments] = useState(false);
 
   // Check if the current user has already liked the post
   useEffect(() => {
@@ -27,6 +29,41 @@ export default function Post({ post }) {
       setIsLiked(!isLiked);
     } catch (err) {
       console.error("Failed to like post:", err);
+    }
+  };
+
+  // --- FUNCTIONS FOR COMMENTS ---
+  const fetchComments = async () => {
+    try {
+      const response = await API.get(`/posts/${post._id}/comments`);
+      setComments(response.data);
+    } catch (err) {
+      console.error("Failed to fetch comments", err);
+    }
+  };
+
+  const handleToggleComments = () => {
+    const newShowState = !showComments;
+    setShowComments(newShowState);
+    // Fetch comments only when opening the section for the first time
+    if (newShowState && comments.length === 0) {
+      fetchComments();
+    }
+  };
+
+  const handleCommentSubmit = async (e) => {
+    e.preventDefault();
+    if (!newComment.trim()) return;
+    try {
+      const response = await API.post("/comments", {
+        postId: post._id,
+        text: newComment,
+      });
+      // Add the new comment to the top of the list for an instant update
+      setComments([response.data, ...comments]);
+      setNewComment(""); // Clear the input field
+    } catch (err) {
+      console.error("Failed to post comment", err);
     }
   };
 
@@ -49,14 +86,13 @@ export default function Post({ post }) {
       </div>
       <p className="text-gray-800">{post.description}</p>
       {/* Like and comment buttons will go here */}
-      <div className="flex items-center">
+      <div className="flex items-center space-x-4 border-t pt-2 my-4">
         <button
           onClick={handleLike}
-          className={`flex items-center space-x-1 focus:outline-none my-2 ${
+          className={`flex items-center space-x-1 focus:outline-none ${
             isLiked ? "text-indigo-600" : "text-gray-500"
           }`}
         >
-          {/* Simple heart SVG icon */}
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-6 w-6"
@@ -71,9 +107,74 @@ export default function Post({ post }) {
               d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.5l1.318-1.182a4.5 4.5 0 116.364 6.364L12 18.75l-7.682-7.868a4.5 4.5 0 010-6.364z"
             />
           </svg>
+          <span>{likeCount} Likes</span>
         </button>
-        <span className="text-gray-600 text-sm">{likeCount} likes</span>
+        <button
+          onClick={handleToggleComments}
+          className="flex items-center space-x-1 text-gray-500 focus:outline-none"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="w-6 h-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"
+            />
+          </svg>
+          <span>
+            {comments.length > 0 ? `${comments.length} Comments` : "Comment"}
+          </span>
+        </button>
       </div>
+
+      {/* --- Comment Section (Conditional Rendering) --- */}
+      {showComments && (
+        <div className="mt-4">
+          {/* Form to add a new comment */}
+          <form onSubmit={handleCommentSubmit} className="flex space-x-2 mb-4">
+            <input
+              type="text"
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              placeholder="Write a comment..."
+              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+            <button
+              type="submit"
+              className="bg-indigo-600 text-white font-semibold px-4 rounded-md hover:bg-indigo-700"
+            >
+              Post
+            </button>
+          </form>
+
+          {/* List of existing comments */}
+          <div className="space-y-3">
+            {comments.map((comment) => (
+              <div
+                key={comment._id}
+                className="flex items-start space-x-2 text-sm"
+              >
+                <div className="w-8 h-8 rounded-full bg-gray-200"></div>
+                <div className="bg-gray-100 rounded-lg p-2 flex-1">
+                  <Link
+                    href={`/profile/${comment.user.username}`}
+                    className="font-bold hover:underline"
+                  >
+                    {comment.user.username}
+                  </Link>
+                  <p>{comment.text}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
