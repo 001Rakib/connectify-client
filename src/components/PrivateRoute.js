@@ -11,7 +11,7 @@ const PrivateRoute = ({ children }) => {
   useEffect(() => {
     // If loading is finished and user is not authenticated, redirect
     if (!loading && !isAuthenticated) {
-      router.push("/login");
+      router.push("/auth/login");
     }
   }, [isAuthenticated, loading, router]);
 

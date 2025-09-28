@@ -2,6 +2,7 @@
 
 import { useAuth } from "@/context/AuthContext";
 import API from "@/utils/api";
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -85,6 +86,19 @@ export default function Post({ post }) {
         </div>
       </div>
       <p className="text-gray-800">{post.description}</p>
+
+      {post.imageUrl && (
+        <div className="my-3">
+          <Image
+            src={post.imageUrl}
+            alt="Post image"
+            className="rounded-lg h-96 w-full object-contain"
+            height={500}
+            width={400}
+          />
+        </div>
+      )}
+
       {/* Like and comment buttons will go here */}
       <div className="flex items-center space-x-4 border-t pt-2 my-4">
         <button

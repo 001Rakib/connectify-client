@@ -49,13 +49,13 @@ const Navbar = () => {
             ) : (
               <>
                 <Link
-                  href="/login"
+                  href="/auth/login"
                   className="py-2 px-2 font-medium text-gray-500 rounded hover:bg-gray-200 transition duration-300"
                 >
                   Log In
                 </Link>
                 <Link
-                  href="/register"
+                  href="/auth/register"
                   className="py-2 px-2 font-medium text-white bg-indigo-500 rounded hover:bg-indigo-400 transition duration-300"
                 >
                   Sign Up
