@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import API from "../../../utils/api";
 import Post from "../../../components/Post";
 import { useAuth } from "@/context/AuthContext";
+import Image from "next/image";
 
 export default function ProfilePage() {
   const params = useParams();
@@ -76,9 +77,22 @@ export default function ProfilePage() {
     <div className="max-w-4xl mx-auto mt-10 px-4">
       <div className="bg-white p-6 rounded-lg shadow-md mb-8 flex items-center justify-between">
         <div className="flex items-center">
-          <div className="w-24 h-24 rounded-full bg-gray-300 mr-6"></div>
+          <div className="w-24 h-24 rounded-full bg-gray-300 mr-6 overflow-hidden">
+            {/* Add this inside */}
+            {profileUser?.profilePicture && (
+              <Image
+                src={profileUser.profilePicture}
+                alt={profileUser.username}
+                className="w-full h-full object-cover"
+                width={96}
+                height={96}
+              />
+            )}
+          </div>
           <div>
-            <h1 className="text-3xl font-bold">{profileUser?.username}</h1>
+            <h1 className="text-3xl font-bold">{profileUser?.name}</h1>
+            <h3 className="">@{profileUser?.username}</h3>
+            <h3 className="text-gray-500">Bio: {profileUser?.bio}</h3>
             <p className="text-gray-600">
               Followers: {followerCount} | Following:{" "}
               {profileUser?.following?.length || 0}

@@ -86,7 +86,18 @@ export default function Post({ post, onPostDeleted }) {
       <div className="flex items-center mb-3 justify-between">
         <div className="flex items-center">
           {/* We'll add a real profile picture later */}
-          <div className="w-10 h-10 rounded-full bg-gray-300 mr-3"></div>
+          <div className="w-10 h-10 rounded-full bg-gray-300 mr-3 overflow-hidden">
+            {/* Add this inside */}
+            {post.user.profilePicture && (
+              <Image
+                src={post.user.profilePicture}
+                alt={post.user.username}
+                className="w-full h-full object-cover"
+                width={40}
+                height={40}
+              />
+            )}
+          </div>
           <div>
             <Link
               href={`/profile/${post.user.username}`}
@@ -211,7 +222,18 @@ export default function Post({ post, onPostDeleted }) {
                 key={comment._id}
                 className="flex items-start space-x-2 text-sm"
               >
-                <div className="w-8 h-8 rounded-full bg-gray-200"></div>
+                <div className="w-8 h-8 rounded-full bg-gray-200 overflow-hidden">
+                  {/* Add this inside */}
+                  {comment.user.profilePicture && (
+                    <Image
+                      src={comment.user.profilePicture}
+                      alt={comment.user.username}
+                      className="w-full h-full object-cover"
+                      height={24}
+                      width={24}
+                    />
+                  )}
+                </div>
                 <div className="bg-gray-100 rounded-lg p-2 flex-1">
                   <Link
                     href={`/profile/${comment.user.username}`}
