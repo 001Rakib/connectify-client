@@ -27,7 +27,7 @@ export default function Login() {
       login(response.data);
       router.push("/");
     } catch (error) {
-      console.error("Login error:", err.response.data);
+      console.error("Login error:", error?.response?.message);
       setError(
         err.response.data || "Login failed. Please check your credentials."
       );

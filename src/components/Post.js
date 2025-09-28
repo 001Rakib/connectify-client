@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-export default function Post({ post }) {
+export default function Post({ post, onPostDeleted }) {
   const { user } = useAuth();
   const [likeCount, setLikeCount] = useState(post.likes.length);
   const [isLiked, setIsLiked] = useState(false);
@@ -68,22 +68,59 @@ export default function Post({ post }) {
     }
   };
 
+  const handleDelete = async () => {
+    // Show a confirmation dialog before deleting
+    if (window.confirm("Are you sure you want to delete this post?")) {
+      try {
+        await API.delete(`/posts/${post._id}`);
+        // Call the function passed from the parent to remove the post from the UI
+        onPostDeleted(post._id);
+      } catch (err) {
+        console.error("Failed to delete post", err);
+      }
+    }
+  };
+
   return (
     <div className="bg-white p-4 rounded-lg shadow-md mb-4">
-      <div className="flex items-center mb-3">
-        {/* We'll add a real profile picture later */}
-        <div className="w-10 h-10 rounded-full bg-gray-300 mr-3"></div>
-        <div>
-          <Link
-            href={`/profile/${post.user.username}`}
-            className="font-bold hover:underline"
-          >
-            {post.user.username}
-          </Link>
-          <p className="text-xs text-gray-500">
-            {new Date(post.createdAt).toLocaleString()}
-          </p>
+      <div className="flex items-center mb-3 justify-between">
+        <div className="flex items-center">
+          {/* We'll add a real profile picture later */}
+          <div className="w-10 h-10 rounded-full bg-gray-300 mr-3"></div>
+          <div>
+            <Link
+              href={`/profile/${post.user.username}`}
+              className="font-bold hover:underline"
+            >
+              {post.user.username}
+            </Link>
+            <p className="text-xs text-gray-500">
+              {new Date(post.createdAt).toLocaleString()}
+            </p>
+          </div>
         </div>
+
+        {user && user._id === post.user._id && (
+          <button
+            onClick={handleDelete}
+            className="text-gray-400 hover:text-red-500"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+              />
+            </svg>
+          </button>
+        )}
       </div>
       <p className="text-gray-800">{post.description}</p>
 

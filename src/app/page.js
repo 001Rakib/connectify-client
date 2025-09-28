@@ -30,6 +30,10 @@ export default function Home() {
     setPosts([newPost, ...posts]);
   };
 
+  const handlePostDeleted = (postId) => {
+    setPosts(posts.filter((post) => post._id !== postId));
+  };
+
   return (
     <PrivateRoute>
       <div className="max-w-6xl mx-auto mt-10 px-4">
@@ -44,7 +48,11 @@ export default function Home() {
         ) : (
           <div>
             {posts.map((post) => (
-              <Post key={post._id} post={post} />
+              <Post
+                key={post._id}
+                post={post}
+                onPostDeleted={handlePostDeleted}
+              />
             ))}
           </div>
         )}

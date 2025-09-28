@@ -63,6 +63,10 @@ export default function ProfilePage() {
     }
   };
 
+  const handlePostDeleted = (postId) => {
+    setPosts(posts.filter((post) => post._id !== postId));
+  };
+
   if (loading)
     return <div className="text-center mt-10">Loading profile...</div>;
   if (error)
@@ -99,7 +103,13 @@ export default function ProfilePage() {
       <h2 className="text-2xl font-bold mb-4">Posts</h2>
       <div>
         {posts.length > 0 ? (
-          posts.map((post) => <Post key={post._id} post={post} />)
+          posts.map((post) => (
+            <Post
+              key={post._id}
+              post={post}
+              onPostDeleted={handlePostDeleted}
+            />
+          ))
         ) : (
           <p>This user hasn&apos;t posted anything yet.</p>
         )}
