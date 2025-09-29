@@ -30,6 +30,10 @@ export default function Home() {
     setPosts([newPost, ...posts]);
   };
 
+  const handlePostUpdated = (updatedPost) => {
+    setPosts(posts.map((p) => (p._id === updatedPost._id ? updatedPost : p)));
+  };
+
   const handlePostDeleted = (postId) => {
     setPosts(posts.filter((post) => post._id !== postId));
   };
@@ -52,6 +56,7 @@ export default function Home() {
                 key={post._id}
                 post={post}
                 onPostDeleted={handlePostDeleted}
+                onPostUpdated={handlePostUpdated}
               />
             ))}
           </div>

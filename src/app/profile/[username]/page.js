@@ -64,6 +64,10 @@ export default function ProfilePage() {
     }
   };
 
+  const handlePostUpdated = (updatedPost) => {
+    setPosts(posts.map((p) => (p._id === updatedPost._id ? updatedPost : p)));
+  };
+
   const handlePostDeleted = (postId) => {
     setPosts(posts.filter((post) => post._id !== postId));
   };
@@ -122,6 +126,7 @@ export default function ProfilePage() {
               key={post._id}
               post={post}
               onPostDeleted={handlePostDeleted}
+              onPostUpdated={handlePostUpdated}
             />
           ))
         ) : (

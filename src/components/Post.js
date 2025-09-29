@@ -6,13 +6,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-export default function Post({ post, onPostDeleted }) {
+export default function Post({ post, onPostDeleted, onPostUpdated }) {
   const { user } = useAuth();
   const [likeCount, setLikeCount] = useState(post.likes.length);
   const [isLiked, setIsLiked] = useState(false);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
   const [showComments, setShowComments] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedDescription, setEditedDescription] = useState(post.description);
 
   // Check if the current user has already liked the post
   useEffect(() => {
@@ -68,6 +70,23 @@ export default function Post({ post, onPostDeleted }) {
     }
   };
 
+  const handleSave = async () => {
+    try {
+      const response = await API.put(`/posts/${post._id}`, {
+        description: editedDescription,
+      });
+      onPostUpdated(response.data); // Notify the parent component of the update
+      setIsEditing(false); // Switch back to view mode
+    } catch (err) {
+      console.error("Failed to update post", err);
+    }
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    setEditedDescription(post.description); // Revert any changes
+  };
+
   const handleDelete = async () => {
     // Show a confirmation dialog before deleting
     if (window.confirm("Are you sure you want to delete this post?")) {
@@ -103,37 +122,83 @@ export default function Post({ post, onPostDeleted }) {
               href={`/profile/${post.user.username}`}
               className="font-bold hover:underline"
             >
-              {post.user.username}
+              {post?.user?.name}
             </Link>
             <p className="text-xs text-gray-500">
               {new Date(post.createdAt).toLocaleString()}
             </p>
           </div>
         </div>
-
+        {/* Edit post */}
         {user && user._id === post.user._id && (
-          <button
-            onClick={handleDelete}
-            className="text-gray-400 hover:text-red-500"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => setIsEditing(true)}
+              className="text-gray-400 hover:text-blue-500"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-              />
-            </svg>
-          </button>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L14.732 3.732z"
+                />
+              </svg>
+            </button>
+            <button
+              onClick={handleDelete}
+              className="text-gray-400 hover:text-red-500"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                />
+              </svg>
+            </button>
+          </div>
         )}
       </div>
-      <p className="text-gray-800">{post.description}</p>
+
+      {isEditing ? (
+        <div>
+          <textarea
+            value={editedDescription}
+            onChange={(e) => setEditedDescription(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded-md"
+          />
+          <div className="flex justify-end space-x-2 mt-2">
+            <button
+              onClick={handleCancel}
+              className="px-3 py-1 bg-gray-200 rounded-md"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSave}
+              className="px-3 py-1 bg-indigo-600 text-white rounded-md"
+            >
+              Save
+            </button>
+          </div>
+        </div>
+      ) : (
+        <p className="text-gray-800 mb-3">{post.description}</p>
+      )}
 
       {post.imageUrl && (
         <div className="my-3">
