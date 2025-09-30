@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function Post({ post, onPostDeleted, onPostUpdated }) {
-  const { user } = useAuth();
+  const { user, socket } = useAuth();
   const [likeCount, setLikeCount] = useState(post.likes.length);
   const [isLiked, setIsLiked] = useState(false);
   const [comments, setComments] = useState([]);
@@ -30,6 +30,20 @@ export default function Post({ post, onPostDeleted, onPostUpdated }) {
       // Update the state immediately for a responsive feel
       setLikeCount(isLiked ? likeCount - 1 : likeCount + 1);
       setIsLiked(!isLiked);
+
+      //! emit like notification
+      if (!isLiked) {
+        console.log(
+          "CLIENT: Emitting 'sendNotification' to receiver:",
+          post.user._id
+        );
+        socket.current.emit("sendNotification", {
+          senderId: user._id,
+          receiverId: post.user._id,
+          type: "like",
+          post: { id: post._id, description: post?.description },
+        });
+      }
     } catch (err) {
       console.error("Failed to like post:", err);
     }

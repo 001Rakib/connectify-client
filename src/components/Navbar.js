@@ -3,10 +3,28 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
+import { useState } from "react";
 
 const Navbar = () => {
-  const { isAuthenticated, loading, logout, user } = useAuth();
+  const { isAuthenticated, user, logout, loading, notifications } = useAuth();
   const router = useRouter();
+  const [showNotifications, setShowNotifications] = useState(false);
+
+  const displayNotification = (notification) => {
+    console.log("from navbar", notification);
+    const { sender, type } = notification;
+    let actionText;
+    if (type === "like") actionText = "liked your post.";
+    else if (type === "comment") actionText = "commented on your post.";
+    else actionText = "started following you.";
+
+    return `${sender.name} ${actionText}`;
+  };
+
+  const handleReadNotifications = () => {
+    setShowNotifications(!showNotifications);
+    // We can add logic here later to mark notifications as read in the DB
+  };
 
   const handleLogout = () => {
     logout();
@@ -33,6 +51,51 @@ const Navbar = () => {
           <div className="hidden md:flex items-center space-x-3">
             {isAuthenticated ? (
               <>
+                {/* --- NOTIFICATION BELL --- */}
+                <div className="relative">
+                  <button
+                    onClick={handleReadNotifications}
+                    className="focus:outline-none"
+                  >
+                    <svg
+                      xmlns="http://www.w.w3.org/2000/svg"
+                      className="h-6 w-6 text-gray-500"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                      />
+                    </svg>
+                    {notifications.length > 0 && (
+                      <span className="absolute -top-1 -right-1 flex h-4 w-4">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-4 w-4 bg-red-500 justify-center items-center text-white text-xs">
+                          {notifications.length}
+                        </span>
+                      </span>
+                    )}
+                  </button>
+                  {showNotifications && (
+                    <div className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg p-4 z-10">
+                      <h3 className="font-bold mb-2">Notifications</h3>
+                      {notifications.length > 0 ? (
+                        notifications.map((n) => (
+                          <div key={n._id} className="border-b py-1">
+                            {displayNotification(n)}
+                          </div>
+                        ))
+                      ) : (
+                        <p>No new notifications.</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+
                 <Link
                   href={`/profile/${user.username}`}
                   className="py-2 px-2 font-medium text-gray-500 rounded hover:bg-indigo-500 hover:text-white transition duration-300"
