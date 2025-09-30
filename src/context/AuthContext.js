@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, useRef } from "react";
 import { io } from "socket.io-client";
-import API from "../utils/api";
+import API, { setAccessToken } from "../utils/api";
 
 const AuthContext = createContext();
 
@@ -14,17 +14,14 @@ export const AuthProvider = ({ children }) => {
 
   //check for logged in user
   useEffect(() => {
-    const loadUserFromLocalStorage = () => {
+    const loadUser = () => {
       const storedUser = localStorage.getItem("user");
-      const token = localStorage.getItem("token");
-
-      if (storedUser && token) {
+      if (storedUser) {
         setUser(JSON.parse(storedUser));
-        API.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       }
       setLoading(false);
     };
-    loadUserFromLocalStorage();
+    loadUser();
   }, []);
 
   const fetchNotifications = async () => {
@@ -61,29 +58,26 @@ export const AuthProvider = ({ children }) => {
 
   // Login function
   const login = async (userData) => {
-    // Store user and token in localStorage to persist session
-    localStorage.setItem("user", JSON.stringify(userData));
-    localStorage.setItem("token", userData.token);
+    // The token is now inside userData.accessToken
+    setAccessToken(userData.accessToken);
 
-    // Update the user state
-    setUser(userData);
-
-    // Set the auth token for all future API requests
-    API.defaults.headers.common["Authorization"] = `Bearer ${userData.token}`;
-    await fetchNotifications();
+    // Don't store the token in the user object in localStorage
+    const { accessToken, ...userToStore } = userData;
+    localStorage.setItem("user", JSON.stringify(userToStore));
+    setUser(userToStore);
   };
 
   //logout function
-  const logout = () => {
-    // Clear from localStorage
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
-
-    // Reset user state
-    setUser(null);
-
-    // Remove auth token from API headers
-    delete API.defaults.headers.common["Authorization"];
+  const logout = async () => {
+    try {
+      await API.post("/auth/logout"); // Call the backend logout
+    } catch (err) {
+      console.error("Logout failed", err);
+    } finally {
+      localStorage.removeItem("user");
+      setAccessToken(""); // Clear the token from our store
+      setUser(null);
+    }
   };
   const value = {
     user,
