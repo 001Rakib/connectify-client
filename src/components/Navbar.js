@@ -4,6 +4,19 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
 import { useState } from "react";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Bell, User, Settings, LogOut } from "lucide-react";
 
 const Navbar = () => {
   const { isAuthenticated, user, logout, loading, notifications } = useAuth();
@@ -40,7 +53,15 @@ const Navbar = () => {
           <div className="flex space-x-7">
             <div>
               {/* Website logo */}
+
               <Link href={"/"} className="flex items-center py-4 px-2">
+                <Image
+                  src={"/conectify.svg"}
+                  alt="connectify-logo"
+                  height={35}
+                  width={35}
+                  className="pr-2"
+                />
                 <span className="font-semibold text-lg text-gray-700">
                   Connectify
                 </span>
@@ -96,24 +117,56 @@ const Navbar = () => {
                   )}
                 </div>
 
-                <Link
-                  href={`/profile/${user.username}`}
-                  className="py-2 px-2 font-medium text-gray-500 rounded hover:bg-indigo-500 hover:text-white transition duration-300"
-                >
-                  Profile
-                </Link>
-                <Link
-                  href="/settings"
-                  className="py-2 px-2 font-medium text-gray-500 rounded hover:bg-gray-200"
-                >
-                  Settings
-                </Link>
-                <button
-                  onClick={handleLogout}
-                  className="py-2 px-2 font-medium text-white bg-indigo-500 rounded hover:bg-indigo-400 transition duration-300"
-                >
-                  Log Out
-                </button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      className="relative h-10 w-10 rounded-full"
+                    >
+                      <Avatar>
+                        <AvatarImage
+                          src={user?.profilePicture}
+                          alt={user?.username}
+                        />
+                        <AvatarFallback>
+                          {user?.username?.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56" align="end" forceMount>
+                    <DropdownMenuLabel className="font-normal">
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium leading-none">
+                          {user?.name}
+                        </p>
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuGroup>
+                      <DropdownMenuItem asChild className="cursor-pointer">
+                        <Link href={`/profile/${user.username}`}>
+                          <User className="mr-2 h-4 w-4" />
+                          <span>Profile</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild className="cursor-pointer">
+                        <Link href="/settings">
+                          <Settings className="mr-2 h-4 w-4" />
+                          <span>Settings</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onSelect={handleLogout}
+                      className="cursor-pointer"
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Log out</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </>
             ) : (
               <>

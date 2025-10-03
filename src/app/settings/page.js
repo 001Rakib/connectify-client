@@ -6,6 +6,7 @@ import API from "../../utils/api";
 import PrivateRoute from "../../components/PrivateRoute";
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
+import { ImageIcon } from "lucide-react";
 
 export default function SettingsPage() {
   const { user, login } = useAuth(); // We need 'login' to update the global state
@@ -78,12 +79,28 @@ export default function SettingsPage() {
                     <div className="w-full h-full"></div>
                   )}
                 </div>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className="border border-amber-100 rounded-md bg-purple-200"
-                />
+
+                <div>
+                  <label
+                    htmlFor="file-upload"
+                    className="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
+                  >
+                    <div className="flex items-center space-x-2 border border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-indigo-500 transition-colors duration-300">
+                      <ImageIcon className="h-6 w-6 text-gray-400" />
+                      <span className="text-gray-600">
+                        {imageFile ? imageFile.name : "Update Profile Picture"}
+                      </span>
+                    </div>
+                  </label>
+                  <input
+                    id="file-upload"
+                    name="file-upload"
+                    type="file"
+                    className="sr-only"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                  />
+                </div>
               </div>
             </div>
 

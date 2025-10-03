@@ -6,6 +6,18 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Heart, MessageCircle, Trash2, Edit } from "lucide-react";
+
 export default function Post({ post, onPostDeleted, onPostUpdated }) {
   const { user, socket } = useAuth();
   const [likeCount, setLikeCount] = useState(post.likes.length);

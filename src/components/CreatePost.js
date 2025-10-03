@@ -1,13 +1,21 @@
 "use client";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import API from "@/utils/api";
 import Image from "next/image";
+import { ImageIcon, Loader2 } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 export default function CreatePost({ onPostCreated }) {
   const [description, setDescription] = useState("");
   const [error, setError] = useState("");
   const [imageFile, setImageFile] = useState(null);
   const [preview, setPreview] = useState(null);
+  const { user } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -19,12 +27,13 @@ export default function CreatePost({ onPostCreated }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
     if (!description.trim() && !imageFile) {
       setError("Post must have either text or an image.");
       return;
     }
 
-    // Use FormData to send both text and file data
+    // FormData to send both text and file data
     const formData = new FormData();
     formData.append("description", description);
     if (imageFile) {
@@ -46,49 +55,72 @@ export default function CreatePost({ onPostCreated }) {
     } catch (err) {
       setError("Failed to create post. Please try again.");
       console.error(err);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow-md mb-6">
-      <form onSubmit={handleSubmit}>
-        <textarea
-          className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          rows="3"
-          placeholder="What's on your mind?"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        ></textarea>
-
-        {/* Image Preview */}
-        {preview && (
-          <div className="my-2">
-            <Image
-              src={preview}
-              alt="Preview"
-              height={240}
-              width={240}
-              className="max-h-60 rounded-lg"
+    <Card className="my-6">
+      <CardContent className="p-4">
+        <div className="flex space-x-4">
+          <Avatar>
+            <AvatarImage src={user?.profilePicture} />
+            <AvatarFallback>
+              {user?.username?.charAt(0).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+          <form onSubmit={handleSubmit} className="w-full">
+            <Textarea
+              placeholder="What's on your mind?"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="border focus-visible:ring-0 text-base"
             />
-          </div>
-        )}
-
-        {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
-        <div className="flex justify-between items-center mt-2">
+            {preview && (
+              <div className="mt-4 rounded-lg border overflow-hidden">
+                <Image
+                  src={preview}
+                  alt="Preview"
+                  className="object-cover w-full"
+                  width={240}
+                  height={240}
+                />
+              </div>
+            )}
+          </form>
+        </div>
+      </CardContent>
+      <CardFooter className="flex justify-between items-center p-4 pt-0">
+        <div>
+          <label
+            htmlFor="file-upload"
+            className="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
+          >
+            <div className="flex items-center space-x-2 border border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-indigo-500 transition-colors duration-300">
+              <ImageIcon className="h-6 w-6 text-gray-400" />
+              <span className="text-gray-600">
+                {imageFile ? imageFile.name : "Click to upload an image"}
+              </span>
+            </div>
+          </label>
           <input
+            id="file-upload"
+            name="file-upload"
             type="file"
+            className="sr-only"
             accept="image/*"
             onChange={handleFileChange}
-            className="text-sm px-3 py-2 rounded-md bg-purple-200"
           />
-          <button
-            type="submit"
-            className="bg-indigo-600 text-white font-bold py-2 px-4 rounded-md hover:bg-indigo-700"
-          >
-            Post
-          </button>
         </div>
-      </form>
-    </div>
+        <Button
+          onClick={handleSubmit}
+          disabled={isSubmitting || (!description && !imageFile)}
+        >
+          {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          {isSubmitting ? "Posting..." : "Post"}
+        </Button>
+      </CardFooter>
+    </Card>
   );
 }

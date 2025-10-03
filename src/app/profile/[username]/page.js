@@ -5,7 +5,11 @@ import { useParams } from "next/navigation";
 import API from "../../../utils/api";
 import Post from "../../../components/Post";
 import { useAuth } from "@/context/AuthContext";
-import Image from "next/image";
+import { Card } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Edit } from "lucide-react";
+import Link from "next/link";
 
 export default function ProfilePage() {
   const params = useParams();
@@ -79,44 +83,60 @@ export default function ProfilePage() {
 
   return (
     <div className="max-w-4xl mx-auto mt-10 px-4">
-      <div className="bg-white p-6 rounded-lg shadow-md mb-8 flex items-center justify-between">
-        <div className="flex items-center">
-          <div className="w-24 h-24 rounded-full bg-gray-300 mr-6 overflow-hidden">
-            {/* Add this inside */}
-            {profileUser?.profilePicture && (
-              <Image
-                src={profileUser.profilePicture}
-                alt={profileUser.username}
-                className="w-full h-full object-cover"
-                width={96}
-                height={96}
-              />
+      <Card className="mb-6 p-6 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="flex flex-col md:flex-row items-center gap-6">
+          <Avatar className="h-24 w-24">
+            <AvatarImage
+              src={profileUser?.profilePicture}
+              alt={profileUser?.username}
+            />
+            <AvatarFallback className="text-4xl">
+              {profileUser?.username?.charAt(0).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+          <div className="text-center md:text-left">
+            <h1 className="text-3xl font-bold text-foreground">
+              {profileUser?.name}
+            </h1>
+            <h3 className="text-lg text-muted-foreground mb-2">
+              @{profileUser?.username}
+            </h3>
+            {profileUser?.bio && (
+              <p className="text-sm text-muted-foreground max-w-md mb-2">
+                {profileUser.bio}
+              </p>
             )}
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold">{profileUser?.name}</h1>
-            <h3 className="">@{profileUser?.username}</h3>
-            <h3 className="text-gray-500">Bio: {profileUser?.bio}</h3>
-            <p className="text-gray-600">
-              Followers: {followerCount} | Following:{" "}
-              {profileUser?.following?.length || 0}
+            <p className="text-sm text-muted-foreground">
+              Followers: <span className="font-semibold">{followerCount}</span>{" "}
+              | Following:{" "}
+              <span className="font-semibold">
+                {profileUser?.following?.length || 0}
+              </span>
             </p>
           </div>
         </div>
-        {/* --- DYNAMIC FOLLOW BUTTON --- */}
-        {loggedInUser && loggedInUser._id !== profileUser?._id && (
-          <button
-            onClick={handleFollow}
-            className={`px-4 py-2 rounded-md font-semibold ${
-              isFollowing
-                ? "bg-gray-200 text-gray-800"
-                : "bg-indigo-600 text-white hover:bg-indigo-700"
-            }`}
-          >
-            {isFollowing ? "Unfollow" : "Follow"}
-          </button>
-        )}
-      </div>
+
+        {/* --- DYNAMIC ACTIONS: FOLLOW/UNFOLLOW or EDIT PROFILE --- */}
+        <div className="mt-4 md:mt-0">
+          {loggedInUser && loggedInUser._id === profileUser?._id ? (
+            // If viewing your own profile, show Edit Profile button
+            <Button asChild>
+              <Link href="/settings">
+                <Edit className="mr-2 h-4 w-4" />
+                Edit Profile
+              </Link>
+            </Button>
+          ) : (
+            // If viewing someone else's profile, show Follow/Unfollow button
+            <Button
+              onClick={handleFollow}
+              variant={isFollowing ? "outline" : "default"} // Outline for unfollow, default for follow
+            >
+              {isFollowing ? "Unfollow" : "Follow"}
+            </Button>
+          )}
+        </div>
+      </Card>
 
       <h2 className="text-2xl font-bold mb-4">Posts</h2>
       <div>
