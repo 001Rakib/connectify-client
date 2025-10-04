@@ -1,6 +1,6 @@
 # Connectify - Frontend 🚀
 
-![Connectify Logo]('/client/public/conectify.svg)
+![Connectify Logo]('./client/public/conectify.svg)
 
 This is the frontend for Connectify, a modern, full-stack social media application built with **Next.js**, **React**, and **Tailwind CSS**. It features a responsive design, real-time notifications, and a complete suite of social networking features.
 
@@ -19,7 +19,7 @@ This is the frontend for Connectify, a modern, full-stack social media applicati
 - **Password Management:** Secure "Change Password" and "Forgot Password" email flow.
 - **Modern UI:** Built with **shadcn/ui** for a clean, responsive, and accessible design.
 
-[Image of the Connectify application interface]('/client/public/connectify-home.png)
+[Image of the Connectify application interface]('./client/public/connectify-home.png)
 
 ---
 
