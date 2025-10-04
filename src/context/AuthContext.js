@@ -37,7 +37,7 @@ export const AuthProvider = ({ children }) => {
   //for socket.io connection
   useEffect(() => {
     //initialize socket connection
-    socket.current = io("http://localhost:5000");
+    socket.current = io("https://connectify-server-113s.onrender.com");
 
     socket.current.on("getNotification", (data) => {
       // Update the notifications state

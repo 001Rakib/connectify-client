@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Edit } from "lucide-react";
 import Link from "next/link";
+import Spinner from "@/components/Spinner";
 
 export default function ProfilePage() {
   const params = useParams();
@@ -76,8 +77,7 @@ export default function ProfilePage() {
     setPosts(posts.filter((post) => post._id !== postId));
   };
 
-  if (loading)
-    return <div className="text-center mt-10">Loading profile...</div>;
+  if (loading) return <Spinner />;
   if (error)
     return <div className="text-center mt-10 text-red-500">{error}</div>;
 

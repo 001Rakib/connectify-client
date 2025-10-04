@@ -2,6 +2,7 @@
 import CreatePost from "@/components/CreatePost";
 import Post from "@/components/Post";
 import PrivateRoute from "@/components/PrivateRoute";
+import Spinner from "@/components/Spinner";
 import { useAuth } from "@/context/AuthContext";
 import API from "@/utils/api";
 import { useEffect, useState } from "react";
@@ -48,7 +49,7 @@ export default function Home() {
         <CreatePost onPostCreated={handlePostCreated} />
 
         {loading ? (
-          <p>Loading posts...</p>
+          <Spinner />
         ) : (
           <div>
             {posts.map((post) => (

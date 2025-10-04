@@ -7,7 +7,7 @@ export const setAccessToken = (token) => {
 };
 
 const API = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: "https://connectify-server-113s.onrender.com/api",
   withCredentials: true,
 });
 

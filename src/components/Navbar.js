@@ -17,6 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Bell, User, Settings, LogOut } from "lucide-react";
+import Spinner from "./Spinner";
 
 const Navbar = () => {
   const { isAuthenticated, user, logout, loading, notifications } = useAuth();
@@ -44,7 +45,7 @@ const Navbar = () => {
     router.push("/auth/login");
   };
 
-  if (loading) return null;
+  if (loading) return <Spinner />;
 
   return (
     <nav className="bg-white shadow-md">
